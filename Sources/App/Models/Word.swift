@@ -8,9 +8,9 @@ final class Word: Codable {
 	var definition: String
 	var usage: String
 	var synonyms: String
-	var selected: Int
+	var selected: [Int]
 
-	init(id: Int? = nil, word: String, definition: String, synonyms: String, usage: String, selected: Int) {
+	init(id: Int? = nil, word: String, definition: String, synonyms: String, usage: String, selected: [Int]) {
         self.id = id
         self.word = word
 		self.definition = definition

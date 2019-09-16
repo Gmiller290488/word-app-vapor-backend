@@ -9,7 +9,7 @@ final class WordController: RouteCollection {
 	func boot(router: Router) throws {
 		let wordRoutes = router.grouped("api", "word")
 		wordRoutes.get(use: index)
-		wordRoutes.patch(Int.parameter, use: update)
+		wordRoutes.patch(Word.parameter, use: update)
 		wordRoutes.delete(Int.parameter, use: delete)
 		wordRoutes.post(Word.self, use: create)
 	}
@@ -32,12 +32,11 @@ final class WordController: RouteCollection {
 	}
 	
 	func update(_ req: Request) throws -> Future<Word> {
-		let wordId = try req.parameters.next(Int.self)
-		return Word
-		.find(wordId, on: req)
-		.unwrap(or: Abort(.notFound))
-		.flatMap(to: Word.self) { word in
-			return word.update(on: req)
+		return try req.parameters.next(Word.self).flatMap { word in
+			return try req.content.decode(Word.self).flatMap { newWord in
+				word.selected = newWord.selected
+				return word.save(on: req)
+			}
 		}
 	}
 	
