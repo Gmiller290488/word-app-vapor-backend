@@ -2,15 +2,21 @@ import Foundation
 import Vapor
 import Fluent
 import FluentMySQL
+import Crypto
+import Authentication
 
 /// Controls basic CRUD operations on `Todo`s.
 final class WordController: RouteCollection {
 	
 	func boot(router: Router) throws {
+		let basicAuthMiddleware = User.basicAuthMiddleware(using: BCrypt)
+		let guardAuthMiddleware = User.guardAuthMiddleware()
+		let basicAuthGroup = router.grouped([basicAuthMiddleware, guardAuthMiddleware])
+		
 		let wordRoutes = router.grouped("api", "word")
 		wordRoutes.get(use: index)
-		wordRoutes.patch(Word.parameter, use: update)
-		wordRoutes.delete(Int.parameter, use: delete)
+		basicAuthGroup.patch("api/word", Word.parameter, use: update)
+		basicAuthGroup.delete("api/word", Int.parameter, use: delete)
 		wordRoutes.post(Word.self, use: create)
 	}
 	
