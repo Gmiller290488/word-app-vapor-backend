@@ -31,3 +31,15 @@ extension Token {
 		return try Token(token: random.base64EncodedString(), userID: user.requireID())
 	}
 }
+
+extension Token: Authentication.Token {
+	typealias UserType = User
+	
+	static var userIDKey: UserIDKey {
+		return \Token.userID
+	}
+	
+	static var tokenKey: TokenKey {
+		return \Token.token
+	}
+}

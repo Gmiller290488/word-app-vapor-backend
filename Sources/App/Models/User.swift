@@ -21,9 +21,7 @@ final class User: MySQLModel {
 
 		self.email = email
 		self.password = password
-		
 	}
-	
 }
 
 extension User: BasicAuthenticatable {
@@ -35,3 +33,6 @@ extension User: Parameter {}
 extension User: Migration {}
 extension User: Content {}
 
+extension User: TokenAuthenticatable {
+	typealias TokenType = Token
+}

@@ -1,5 +1,6 @@
 import FluentMySQL
 import Vapor
+import Authentication
 
 final class Word: Codable {
 	
@@ -24,3 +25,7 @@ extension Word: MySQLModel { }
 extension Word: Migration { }
 extension Word: Content { }
 extension Word: Parameter { }
+
+//extension Word: TokenAuthenticatable {
+//	typealias TokenType = Token
+//}

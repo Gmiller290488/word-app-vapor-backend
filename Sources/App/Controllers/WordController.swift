@@ -14,9 +14,13 @@ final class WordController: RouteCollection {
 		let basicAuthGroup = router.grouped([basicAuthMiddleware, guardAuthMiddleware])
 		
 		let wordRoutes = router.grouped("api", "word")
+		
+		let tokenAuthMiddleware = User.tokenAuthMiddleware()
+		let tokenProtected = router.grouped(tokenAuthMiddleware, guardAuthMiddleware)
+		
 		wordRoutes.get(use: index)
-		basicAuthGroup.patch("api/word", Word.parameter, use: update)
-		basicAuthGroup.delete("api/word", Int.parameter, use: delete)
+		tokenProtected.patch("api/word", Word.parameter, use: update)
+		tokenProtected.delete("api/word", Int.parameter, use: delete)
 		wordRoutes.post(Word.self, use: create)
 	}
 	
@@ -27,7 +31,6 @@ final class WordController: RouteCollection {
 	}
 	
 	func create(_ req: Request, newWord: Word) throws -> Future<HTTPResponseStatus> {
-
 		return try Word.query(on: req).filter(\.word == newWord.word).first().flatMap { existingWord in
 			guard existingWord == nil else {
 				throw Abort(.badRequest, reason: "This word already exists", identifier: nil)

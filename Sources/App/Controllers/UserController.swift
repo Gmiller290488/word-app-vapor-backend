@@ -14,11 +14,13 @@ import Crypto
 class UserController: RouteCollection {
 	
 	func boot(router: Router) throws {
-		let group = router.grouped("api", "users")
+		let usersRoute = router.grouped("api", "users")
+		
 		let basicAuthMiddleware = User.basicAuthMiddleware(using: BCryptDigest())
 		let guardAuthMiddleware = User.guardAuthMiddleware()
-		let basicProtected = group.grouped(basicAuthMiddleware, guardAuthMiddleware)
-		group.post(User.self, at: "register", use: registerUserHandler)
+		let basicProtected = usersRoute.grouped(basicAuthMiddleware, guardAuthMiddleware)
+		
+		usersRoute.post(User.self, at: "register", use: registerUserHandler)
 		basicProtected.post("login", use: loginHandler)
 	}
 }
