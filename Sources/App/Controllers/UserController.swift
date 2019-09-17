@@ -15,7 +15,11 @@ class UserController: RouteCollection {
 	
 	func boot(router: Router) throws {
 		let group = router.grouped("api", "users")
+		let basicAuthMiddleware = User.basicAuthMiddleware(using: BCryptDigest())
+		let guardAuthMiddleware = User.guardAuthMiddleware()
+		let basicProtected = group.grouped(basicAuthMiddleware, guardAuthMiddleware)
 		group.post(User.self, at: "register", use: registerUserHandler)
+		basicProtected.post("login", use: loginHandler)
 	}
 }
 
@@ -29,9 +33,15 @@ private extension UserController {
 			
 			let digest = try request.make(BCryptDigest.self)
 			let hashedPassword = try digest.hash(newUser.password)
-			let persistedUser = User(id: nil, email: newUser.email, password: hashedPassword)
+			let persistedUser = User(email: newUser.email, password: hashedPassword)
 			
 			return persistedUser.save(on: request).transform(to: .created)
 		}
+	}
+	
+	func loginHandler(_ req: Request) throws -> Future<Token> {
+		let user = try req.requireAuthenticated(User.self)
+		let token = try Token.generate(for: user)
+		return token.save(on: req)
 	}
 }

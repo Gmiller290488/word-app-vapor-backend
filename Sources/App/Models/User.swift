@@ -11,14 +11,27 @@ import Fluent
 import FluentMySQL
 import Authentication
 
-struct User: Content, MySQLUUIDModel, Migration {
+final class User: MySQLModel {
 	
-	var id: UUID?
+	var id: Int?
 	private(set) var email: String
 	private(set) var password: String
+	
+	init(email: String, password: String) {
+
+		self.email = email
+		self.password = password
+		
+	}
+	
 }
 
 extension User: BasicAuthenticatable {
 	static let usernameKey: WritableKeyPath<User, String> = \.email
 	static let passwordKey: WritableKeyPath<User, String> = \.password
 }
+
+extension User: Parameter {}
+extension User: Migration {}
+extension User: Content {}
+
